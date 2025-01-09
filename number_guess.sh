@@ -8,7 +8,7 @@ $PSQL "CREATE TABLE IF NOT EXISTS users (username VARCHAR(22) PRIMARY KEY, games
 
 # Prompt for username with validation
 while true; do
-    read -p "Enter your username (up to 22 characters): " USERNAME
+    read -p "Enter your username:" USERNAME
     if [[ ${#USERNAME} -le 22 ]]; then
         break
     else
