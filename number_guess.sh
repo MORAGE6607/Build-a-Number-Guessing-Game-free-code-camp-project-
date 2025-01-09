@@ -54,3 +54,15 @@ while true; do
         break
     fi
 done
+
+# Update user statistics in the database
+if [[ $GAMES_PLAYED -eq 0 ]]; then
+    $PSQL "INSERT INTO users (username, games_played, best_game) VALUES ('$USERNAME', 1, $NUMBER_OF_GUESSES);"
+else
+    NEW_GAMES_PLAYED=$(( GAMES_PLAYED + 1 ))
+    if [[ -z $BEST_GAME ]] || [[ $NUMBER_OF_GUESSES -lt $BEST_GAME ]]; then
+        $PSQL "UPDATE users SET games_played = $NEW_GAMES_PLAYED, best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME';"
+    else
+        $PSQL "UPDATE users SET games_played = $NEW_GAMES_PLAYED WHERE username = '$USERNAME';"
+    fi
+fi
