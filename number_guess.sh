@@ -32,6 +32,11 @@ else
   # Existing user
   GAMES_PLAYED=$(echo $USER_INFO | cut -d '|' -f 1)
   BEST_GAME=$(echo $USER_INFO | cut -d '|' -f 2)
+
+  if [[ $BEST_GAME == "NULL" || -z $BEST_GAME ]]; then
+    BEST_GAME="N/A"
+  fi
+
   echo "Welcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
 fi
 
@@ -67,10 +72,8 @@ done
 
 # Update user statistics in the database
 if [[ $GAMES_PLAYED -eq 0 ]]; then
-  # New user: Insert data
   $PSQL "INSERT INTO users (username, games_played, best_game) VALUES ('$USERNAME', 1, $NUMBER_OF_GUESSES);"
 else
-  # Existing user: Update data
   NEW_GAMES_PLAYED=$(( GAMES_PLAYED + 1 ))
   if [[ $BEST_GAME == "NULL" || $NUMBER_OF_GUESSES -lt $BEST_GAME ]]; then
     $PSQL "UPDATE users SET games_played = $NEW_GAMES_PLAYED, best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME';"
