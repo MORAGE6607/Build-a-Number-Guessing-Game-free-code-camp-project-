@@ -8,7 +8,7 @@ $PSQL "CREATE TABLE IF NOT EXISTS users (username VARCHAR(22) PRIMARY KEY, games
 
 # Prompt for username with validation
 while true; do
-    read -p "Enter your username:" USERNAME
+    read -p "Enter your username (up to 22 characters): " USERNAME
     if [[ ${#USERNAME} -le 22 ]]; then
         break
     else
@@ -26,7 +26,7 @@ if [[ -z $USER_INFO ]]; then
 else
     GAMES_PLAYED=$(echo $USER_INFO | cut -d ' ' -f 1)
     BEST_GAME=$(echo $USER_INFO | cut -d ' ' -f 2)
-    echo "Welcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
+    echo "Welcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took ${BEST_GAME:-0} guesses."
 fi
 
 # Generate a random number between 1 and 1000
@@ -35,7 +35,7 @@ NUMBER_OF_GUESSES=0
 
 # Game loop
 while true; do
-    read -p "Guess the secret number between 1 and 1000:" GUESS
+    read -p "Guess the secret number between 1 and 1000: " GUESS
 
     # Check if the input is an integer
     if ! [[ $GUESS =~ ^[0-9]+$ ]]; then
