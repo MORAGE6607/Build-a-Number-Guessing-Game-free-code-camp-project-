@@ -32,10 +32,7 @@ else
   # Existing user
   GAMES_PLAYED=$(echo $USER_INFO | cut -d '|' -f 1)
   BEST_GAME=$(echo $USER_INFO | cut -d '|' -f 2)
-  if [[ -z $BEST_GAME || $BEST_GAME == "NULL" ]]; then
-    BEST_GAME="0"
-  fi
-  echo "Welcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses. "
+  echo "Welcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
 fi
 
 # Generate a random number between 1 and 1000
@@ -63,7 +60,7 @@ while true; do
     echo "It's lower than that, guess again:"
   else
     # Correct guess
-    echo "You guessed it in $NUMBER_OF_GUESSES tries. The secret number was $SECRET_NUMBER. Nice job! "
+    echo "You guessed it in $NUMBER_OF_GUESSES tries. The secret number was $SECRET_NUMBER. Nice job!"
     break
   fi
 done
