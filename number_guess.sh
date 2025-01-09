@@ -35,7 +35,7 @@ NUMBER_OF_GUESSES=0
 
 # Game loop
 while true; do
-    read -p "Guess the secret number between 1 and 1000: " GUESS
+    read -p "Guess the secret number between 1 and 1000:" GUESS
 
     # Check if the input is an integer
     if ! [[ $GUESS =~ ^[0-9]+$ ]]; then
