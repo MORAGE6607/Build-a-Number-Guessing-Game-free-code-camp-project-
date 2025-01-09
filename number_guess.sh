@@ -15,3 +15,16 @@ while true; do
         echo "Username must be 22 characters or less. Please try again."
     fi
 done
+
+# Check if the user exists
+USER_INFO=$($PSQL "SELECT games_played, best_game FROM users WHERE username = '$USERNAME';")
+
+if [[ -z $USER_INFO ]]; then
+    echo "Welcome, $USERNAME! It looks like this is your first time here."
+    GAMES_PLAYED=0
+    BEST_GAME=0
+else
+    GAMES_PLAYED=$(echo $USER_INFO | cut -d ' ' -f 1)
+    BEST_GAME=$(echo $USER_INFO | cut -d ' ' -f 2)
+    echo "Welcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
+fi
