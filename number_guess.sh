@@ -20,7 +20,7 @@ if [[ ${#USERNAME} -gt 22 ]]; then
   exit 1
 fi
 
-# Check if the user exists
+# Check if the user exists in the database
 USER_INFO=$($PSQL "SELECT games_played, best_game FROM users WHERE username = '$USERNAME';")
 
 if [[ -z $USER_INFO ]]; then
@@ -32,7 +32,7 @@ else
   # Existing user
   GAMES_PLAYED=$(echo $USER_INFO | cut -d '|' -f 1)
   BEST_GAME=$(echo $USER_INFO | cut -d '|' -f 2)
-  if [[ -z $BEST_GAME ]]; then
+  if [[ -z $BEST_GAME || $BEST_GAME == "NULL" ]]; then
     BEST_GAME="0"
   fi
   echo "Welcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
@@ -42,18 +42,18 @@ fi
 SECRET_NUMBER=$(( RANDOM % 1000 + 1 ))
 NUMBER_OF_GUESSES=0
 
-# Start guessing game
+# Start the guessing game
 echo "Guess the secret number between 1 and 1000:"
 while true; do
   read GUESS
 
-  # Validate the input
+  # Validate that the input is an integer
   if ! [[ $GUESS =~ ^[0-9]+$ ]]; then
     echo "That is not an integer, guess again:"
     continue
   fi
 
-  # Increment guess count
+  # Increment the guess count
   NUMBER_OF_GUESSES=$(( NUMBER_OF_GUESSES + 1 ))
 
   # Check the guess
