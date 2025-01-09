@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# PSQL variable
+# PSQL variable for executing commands quietly
 PSQL="psql --username=freecodecamp --dbname=number_guess -t --no-align -c"
 
 # Create the users table if it doesn't exist
-$PSQL "CREATE TABLE IF NOT EXISTS users (username VARCHAR(22) PRIMARY KEY, games_played INT DEFAULT 0, best_game INT);"
+$PSQL "CREATE TABLE IF NOT EXISTS users (username VARCHAR(22) PRIMARY KEY, games_played INT DEFAULT 0, best_game INT);" > /dev/null 2>&1
 
 # Prompt for username
 echo "Enter your username:"
@@ -22,7 +22,7 @@ USER_INFO=$($PSQL "SELECT games_played, best_game FROM users WHERE username = '$
 if [[ -z $USER_INFO ]]; then
   # New user
   echo "Welcome, $USERNAME! It looks like this is your first time here."
-  $PSQL "INSERT INTO users (username, games_played) VALUES ('$USERNAME', 0);"
+  $PSQL "INSERT INTO users (username, games_played) VALUES ('$USERNAME', 0);" > /dev/null 2>&1
 else
   # Existing user
   IFS='|' read -ra ADDR <<< "$USER_INFO"
@@ -66,7 +66,7 @@ done
 NEW_GAMES_PLAYED=$(( GAMES_PLAYED + 1 ))
 
 if [[ -z $BEST_GAME ]] || [[ $NUMBER_OF_GUESSES -lt $BEST_GAME ]]; then
-  $PSQL "UPDATE users SET games_played = $NEW_GAMES_PLAYED, best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME';"
+  $PSQL "UPDATE users SET games_played = $NEW_GAMES_PLAYED, best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME';" > /dev/null 2>&1
 else
-  $PSQL "UPDATE users SET games_played = $NEW_GAMES_PLAYED WHERE username = '$USERNAME';"
+  $PSQL "UPDATE users SET games_played = $NEW_GAMES_PLAYED WHERE username = '$USERNAME';" > /dev/null 2>&1
 fi
