@@ -4,7 +4,7 @@
 PSQL="psql --username=freecodecamp --dbname=number_guess -t --no-align -c"
 
 # Create the users table if it doesn't exist
-$PSQL "CREATE TABLE IF NOT EXISTS users (username VARCHAR(22) PRIMARY KEY, games_played INT DEFAULT 0, best_game INT DEFAULT NULL);"
+$PSQL "CREATE TABLE IF NOT EXISTS users (username VARCHAR(22) PRIMARY KEY, games_played INT DEFAULT 0, best_game INT);"
 
 # Prompt for username
 echo "Enter your username:"
@@ -19,26 +19,25 @@ fi
 # Check if the user exists in the database
 USER_INFO=$($PSQL "SELECT games_played, best_game FROM users WHERE username = '$USERNAME';")
 
-echo # Add a newline before the welcome message
-
 if [[ -z $USER_INFO ]]; then
   # New user
   echo "Welcome, $USERNAME! It looks like this is your first time here."
   GAMES_PLAYED=0
-  BEST_GAME="NULL"
+  $PSQL "INSERT INTO users (username, games_played) VALUES ('$USERNAME', 0);"
 else
   # Existing user
-  GAMES_PLAYED=$(echo $USER_INFO | cut -d '|' -f 1)
-  BEST_GAME=$(echo $USER_INFO | cut -d '|' -f 2)
+  IFS='|' read -ra ADDR <<< "$USER_INFO"
+  GAMES_PLAYED=${ADDR[0]}
+  BEST_GAME=${ADDR[1]}
 
-  if [[ $BEST_GAME == "NULL" || -z $BEST_GAME ]]; then
-    BEST_GAME="N/A"
+  if [[ -z $BEST_GAME ]]; then
+    BEST_GAME_MESSAGE="N/A"
+  else
+    BEST_GAME_MESSAGE=$BEST_GAME
   fi
 
-  echo "Welcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
+  echo "Welcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME_MESSAGE guesses."
 fi
-
-echo # Add a newline before the guessing game instructions
 
 # Generate a random number between 1 and 1000
 SECRET_NUMBER=$(( RANDOM % 1000 + 1 ))
@@ -65,20 +64,16 @@ while true; do
     echo "It's lower than that, guess again:"
   else
     # Correct guess
-    echo # Add a newline before the winning message
     echo "You guessed it in $NUMBER_OF_GUESSES tries. The secret number was $SECRET_NUMBER. Nice job!"
     break
   fi
 done
 
 # Update user statistics in the database
-if [[ $GAMES_PLAYED -eq 0 ]]; then
-  $PSQL "INSERT INTO users (username, games_played, best_game) VALUES ('$USERNAME', 1, $NUMBER_OF_GUESSES);"
+NEW_GAMES_PLAYED=$(( GAMES_PLAYED + 1 ))
+
+if [[ -z $BEST_GAME ]] || [[ $NUMBER_OF_GUESSES -lt $BEST_GAME ]]; then
+  $PSQL "UPDATE users SET games_played = $NEW_GAMES_PLAYED, best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME';"
 else
-  NEW_GAMES_PLAYED=$(( GAMES_PLAYED + 1 ))
-  if [[ $BEST_GAME == "NULL" || $NUMBER_OF_GUESSES -lt $BEST_GAME ]]; then
-    $PSQL "UPDATE users SET games_played = $NEW_GAMES_PLAYED, best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME';"
-  else
-    $PSQL "UPDATE users SET games_played = $NEW_GAMES_PLAYED WHERE username = '$USERNAME';"
-  fi
+  $PSQL "UPDATE users SET games_played = $NEW_GAMES_PLAYED WHERE username = '$USERNAME';"
 fi
